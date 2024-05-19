@@ -688,7 +688,7 @@ Esistono due tipi di \textbf{coercizione}:
 \end{enumerate}
 ```
 ```{r}
-v1 <- c(T, 1L)
+v1 <- c(TRUE, 1L)
 typeof(v1)
 v1
 
@@ -769,7 +769,8 @@ setNames(vett, c("a", "b", "c", "d", "e"))
 
 vett["a"]
 vett["a"] = 10
-vet
+vett
+vett["a"]
 ```
 
 I numeri interi devono essere tutti positivi, tutti negativi o zero.
