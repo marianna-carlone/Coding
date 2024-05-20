@@ -648,6 +648,7 @@ Ci sono tre modi per suddividere una lista:
     \item \$ è un'abbreviazione per estrarre 
 \end{itemize}
 ```
+
 ### Approfondimento sui vettori
 
 Esempi di vettori in `R`:
@@ -1186,10 +1187,8 @@ x <- c(2,3,5,1,4)
 for(i in 1:(length(x)-1)){    #Bubble sort
   for(j in (i+1):length(x)){
     if(x[i] > x[j]){
-      x[c(i,j)] = x[c(j,i)] 
-print(x) #stampa solo per far vedere come funziona
-    } else {
-      x[c(i,j)] = x[c(i,j)]
+      x[c(i,j)] <- x[c(j,i)] 
+      print(x)                #stampa solo per far vedere come funziona
     }
   }
 }
@@ -1272,7 +1271,7 @@ for (parola in unique(v)){
 }
 
 #Conta quante volte si ripete una determinata parola nella frase
-stringa <- "La mela rossa Ã¨ dentro una scatola rossa"
+stringa <- "La mela rossa è dentro una scatola rossa"
 split <- strsplit(stringa, " ")
 parole <- split[[1]]
 parola_da_considerare = "rossa"
@@ -1304,7 +1303,7 @@ Si possono chiamare le funzioni definite passando loro gli argomenti necessari. 
 
 ```{r}
 quadrato <- function(numero){
-  risultato <- x^2
+  risultato <- numero*numero
   return(risultato)
 }
 
@@ -1358,11 +1357,31 @@ dev.st(v)
 -   Creare una funzione che restituisca il massimo tra due numeri.
 
 ```{r}
+num <- sample(1:100, 2)
+
 massimo <- function(x){
   return(x[which.max(x)])
 }
 
-massimo(v)
+massimo(num)
+
+#Alternativa senza usare funzioni built-in
+
+massimo <- function(x){
+  if(!is.numeric(x)){
+    stop("The input must be a numeric vector")
+  }
+  
+  mas <- x[1]
+  for(i in 1:length(x)){
+    if(x[i] > mas){
+      mas <- x[i]
+    }
+  }
+  return(mas)
+}
+
+massimo(num)
 ```
 
 -   Definisci una funzione che prenda in input una lista di parole e
@@ -1494,7 +1513,8 @@ massimo <- function(funzione, x){
   return(x[funzione(x)])
 }
 
-v <- runif(100)
+v <- sample(1:100, 20)
+max(v)
 massimo(which.max, v)
 ```
 
@@ -1567,7 +1587,7 @@ Quale istruzione usare per creare questa matrice?
 [7,]    7   14   21
 ```
 
-```{r}
+```{r, echo=FALSE}
 #Risposta
 matrix(1:21, 7, 3)
 ```
@@ -1605,14 +1625,6 @@ matrix(1:10, 2, 5, byrow = T, dimnames = etichette)
 
 La funzione `length()` ritorna il numero di celle della matrice passata in input, che equivale al numero di righe moltiplicato per il numero di colonne. Le funzioni `nrow()` e `ncol()` restituiscono rispettivamente il numero di righe e il numero di colonne di una matrice. Con la funzione `dim()` è possibile ricavare direttamente le dimensioni della matrice, ottenendo un vettore del tipo `(numero di righe, numero di colonne)`.
 
-```{r}
-M <- matrix(1:4, 2, 2)
-N <- matrix(c(1, 0, 0, 1), 2, 2)
-M * N
-
-M * N == N
-```
-
 ### Operazioni tra matrici
 
 In `R` è possibile effettuare diverse operazioni sulle matrici, tra cui:
@@ -1649,8 +1661,7 @@ array(c(vector1, vector2), dim = c(3, 3, 2), dimnames = list(dim1, dim2, dim3))
 
 ### Esercizi
 
--   Scrivi un codice `R` per creare un vettore con i numeri da 1 a
-    10.
+-   Scrivi un codice `R` per creare un vettore con i numeri da 1 a 10.
 
 ```{r}
 c(1:10)
@@ -1871,7 +1882,6 @@ La funzione `table()` in `R` è utilizzata per creare tabelle di frequenza che m
 ```{r}
 vettore <- c("A", "B", "A", "C", "B", "A", "A", "B", "C")
 table(vettore)
-vettore
 ```
 
 ## Esercizi
@@ -2674,6 +2684,19 @@ my_array_mean <- function(arr){
    return(v/length(arr)) 
 }
 
+#ALTERNATIVA PIù EFFICIENTE
+
+my_array_mean <- function(arr){
+  if(!is.array(arr)){
+    stop("L'input non è di tipo array()")
+  }
+  v <- 0
+  for(elem in arr){
+    v <- v + elem
+  }
+   return(v/length(arr)) 
+}
+
 #ALTERNATIVA CON UTILIZZO DI ALTRE FUNZIONI
 
 my_array_mean <- function(x){
@@ -2802,8 +2825,7 @@ my_list_lenght <- function(l){
 my_list_lenght(pts)
 ```
 
-2)  Implementa una funzione che inverte l'ordine degli elementi in una
-    lista.
+2)  Implementa una funzione che inverte l'ordine degli elementi in una lista.
 
 ```{r}
 my_list_reverse <- function(lis){
