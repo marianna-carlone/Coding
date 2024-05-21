@@ -29,10 +29,6 @@ library(tidyverse)
 library(dplyr)
 ```
 
-```{r include=FALSE}
-setwd("C:\\Users\\maria\\Università degli Studi di Torino\\Gabriele Alfarone - Magistrale\\Primo Anno\\Secondo Semestre\\Coding per la Statistica e Data Science\\Coding appunti\\Dataset")
-```
-
 \newpage
 
 # Nozioni di base della programmazione
