@@ -2144,6 +2144,14 @@ ggplot(subset(mtcars, gear == c(3, 4)), aes(wt, factor(gear))) +
 
 -   `geom_density()` crea un grafico di densità mostrando la
     distribuzione di una variabile continua
+    
+```{r warning=FALSE}
+ggplot(mtcars, aes(x = hp, fill = factor(carb))) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Distribuzione del numero di cavalli per tipo di carburatore",
+       x = "Horsepower", y = "Densità",
+       fill = "Carburatore")
+```
 
 -   `geom_text()` aggiunge testo ai grafici, come etichette o
     annotazioni
@@ -2157,28 +2165,28 @@ ggplot(subset(mtcars, gear == c(3, 4)), aes(wt, factor(gear))) +
 -   `geom_area()` riempie l'area sotto una curva, solitamente usato con
     linee o curve
 
-```{r}
-ggplot(mtcars, aes(x = hp, fill = factor(carb))) +
-  geom_density(alpha = 0.5) +
-  labs(title = "Distribuzione del numero di cavalli per tipo di carburatore",
-       x = "Horsepower", y = "Densità",
-       fill = "Carburatore")
-```
-
 -   `geom_polygon()` crea un poligono collegando i punti dati, usato per
     rappresentare aree
+    
 -   `geom_jitter()` aggiunge jitter ai dati, utile per rendere più
     chiari i dati sovrapposti
+    
 -   `geom_tile()` crea un grafico a matrice di tessere, utile per
     rappresentare dati categorici
+    
 -   `geom_violin()` crea un grafico a violino mostrando la distribuzione
     di una variabile
+    
 -   `geom_errorbar()` aggiunge barre di errore ai grafici, utile per
     rappresentare la variazione
+    
 -   `geom_abline()` aggiunge una linea di regressione o una linea con
     un'equazione specifica
+    
 -   `geom_hline()` aggiunge una linea orizzontale a un grafico
+
 -   `geom_vline()` aggiunge una linea verticale a un grafico
+
 -   `geom_label()` aggiunge etichette ai punti sui grafici
 
 # Funzioni apply
@@ -2324,7 +2332,35 @@ applica_se <- function(matrix, number, fun){
 }
 
 applica_se(matrice, 27, mean)
+```
 
+Creare una versione della funzione `applica_se` che usi un parametro
+`margin` per operare su righe o colonne.
+
+```{r}
+set.seed(123)
+matrice <- matrix(round(runif(9, 1, 100), 0), nrow = 3)
+applica_se_adv <- function(matrix, number, margin, fun){
+  if(is.matrix(matrix) == F){
+    stop("The first parameter is not a matrix")
+  } else {
+    for(i in 1:nrow(matrix)){
+      for(j in 1:ncol(matrix)){
+        if(matrix[i, j] == number){
+          if(margin == 1){
+            return(fun(matrix[i, ]))
+          } else if (margin == 2){
+            return(fun(matrix[, j]))
+          } else {
+            stop("Margin must be 1 or 2")
+          }
+        }
+      }
+    }
+  }
+}
+
+applica_se_adv(matrice, 88, 2, mean)
 
 #alternativa
 
@@ -2360,63 +2396,41 @@ applica_se_bis <- function(m, n, margin, func){
   return (m)
 }
 
-applica_se_bis(matrice, 27, 1, mean)
+applica_se_bis(matrice, 88, 1, mean)
 ```
 
-Creare una versione della funzione `applica_se` che usi un parametro
-`margin` per operare su righe o colonne.
+Creare una versione di entrambe le funzioni con un parametro ulteriore `mul` che se `TRUE` continui la ricerca una volta trovato un primo match.
 
 ```{r}
-matrice <- matrix(round(runif(9, 1, 100), 0), nrow = 3)
-applica_se_adv <- function(matrix, number, margin, fun){
-  if(is.matrix(matrix) == F){
-    stop("The first parameter is not a matrix")
-  } else {
-    for(i in 1:nrow(matrix)){
-      for(j in 1:ncol(matrix)){
-        if(matrix[i, j] == number){
-          if(margin == 1){
-            return(fun(matrix[i, ]))
-          } else if (margin == 2){
-            return(fun(matrix[, j]))
-          } else {
-            stop("Margin must be 1 or 2")
-          }
+applica_se_adv2 <- function(matrix, number, margin, func, mul = FALSE){
+  if(!is.matrix(matrix)){
+    stop("The first parameter must be a numeric matrix")
+  }
+  
+  for(i in 1:nrow(matrix)){
+    for(j in 1:ncol(matrix)){
+      if(matrix[i, j] == number){
+        if(margin == 1){
+          matrix[i, ] <- func(matrix[i, ])
+          if(mul == FALSE){break}
+        } else if(margin == 2){
+          matrix[, j] <- func(matrix[, j])
+          if(mul == FALSE){break}
+        } else {
+          stop("Margin must be equal to 1 or 2")
         }
-      }
+      } 
     }
   }
+  
+  return(matrix)
+  
 }
 
-applica_se_adv(matrice, 27, 2, mean)
-```
 
-Creare una versione di entrambe le funzioni con un parametro ulteriore
-`mul` che se `TRUE` continui la ricerca una volta trovato un primo
-match.
-
-```{r}
-applica_se_adv <- function(matrix, number, margin, fun, mul = FALSE){
-  if(is.matrix(matrix) == F){
-    stop("The first parameter is not a matrix")
-  } else {
-    for(i in 1:nrow(matrix)){
-      for(j in 1:ncol(matrix)){
-        if(matrix[i, j] == number){
-          if(margin == 1){
-            return(fun(matrix[i, ]))
-          } else if (margin == 2){
-            return(fun(matrix[, j]))
-          } else {
-            stop("Margin should be 1 or 2")
-          }
-        }
-      }
-    }
-  }
-}
-
-applica_se_adv(matrice, 27, 2, mean)
+matrice[1, 3] <- 88
+applica_se_adv2(matrice, 88, 2, sqrt, mul = FALSE)
+applica_se_adv2(matrice, 88, 2, sqrt, mul = TRUE)
 ```
 
 # Esercizi di implementazione di funzioni
@@ -2441,21 +2455,21 @@ my_mean <- function(v){
 crea_vettore_num_casuale <- function(lun, min, max){
   return(runif(lun, min, max))
 }
+
 #TESTING 
 test_vec <- function(perfun, rfun, iter){
   i <- 1
   while(i <= iter){
-  v <- crea_vettore_num_casuale(10, 0, 100)
-  mia <- perfun(v)
-  r <- rfun(v)
-  if (all.equal(mia, r)){
-    print(paste("iterazione", i , "OK"))
+    v <- crea_vettore_num_casuale(10, 0, 100)
+    mia <- perfun(v)
+    r <- rfun(v)
+    if (all.equal(mia, r)){
+      print(paste("iterazione", i , "OK"))
+      } else {
+        print(paste("Iterazione", i , "ERROR"))
+      }
+    i <- i+1
   }
-  else {
-    print(paste("Iterazione", i , "ERROR"))
-  }
-  i <- i+1
-}  
 }
 
 test_vec(my_mean, mean,8)
@@ -2482,14 +2496,14 @@ test_vec(my_median, median, 8)
 ```
 
 3)  Crea una funzione che restituisca un vettore contente solo gli
-    elementi unici presenti nel vettore di input. Non usare una funzione
+    elementi unici presenti nel vettore di input. Non usare la funzione
     *built-in* `unique()`. Si può usare l'operatore `%in%`. Usare
     funzione `vector()` per creare un vettore vuoto.
 
 ```{r}
 my_unique <- function(v){
   if(is.list(v)){
-    stop("L'input non è di tipo atomic()")
+    stop("L'input non è atomico")
   }
   j <- vector()
   i <- 1
@@ -2503,11 +2517,8 @@ my_unique <- function(v){
 }
 
 test <- c(1, 1, 3, 5, 6)
-
 all.equal(unique(test), my_unique(test))
-
 test <- c(letters[1:7], letters[1:12]) #character
-
 all.equal(unique(test), my_unique(test))
 
 #ALTERNATIVA CON FOR (meno efficiente)
@@ -2527,8 +2538,8 @@ my_unique <- function(x){
   return(uniq)
 }
 
-my_unique(v) == unique(v)
-length(my_unique(v)) == length(unique(v))
+v <- sample(round(runif(100, 1, 200)), 25, replace = T)
+all.equal(unique(v), my_unique(v))
 
 #ALTERNATIVA CON WHILE
 
@@ -2544,7 +2555,8 @@ my_unique_2 <- function(vec){
   }
   return(v)
 }
-my_unique_2(test)
+
+all.equal(my_unique_2(test), unique(test))
 ```
 
 ## Matrici
