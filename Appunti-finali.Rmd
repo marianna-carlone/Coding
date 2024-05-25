@@ -2407,29 +2407,36 @@ applica_se_adv2 <- function(matrix, number, margin, func, mul = FALSE){
     stop("The first parameter must be a numeric matrix")
   }
   
-  for(i in 1:nrow(matrix)){
-    for(j in 1:ncol(matrix)){
-      if(matrix[i, j] == number){
-        if(margin == 1){
-          matrix[i, ] <- func(matrix[i, ])
-          if(mul == FALSE){break}
-        } else if(margin == 2){
-          matrix[, j] <- func(matrix[, j])
-          if(mul == FALSE){break}
-        } else {
-          stop("Margin must be equal to 1 or 2")
-        }
-      } 
+  if(margin == 1){
+    for(i in 1:nrow(matrix)){
+      if(any(matrix[i, ] == number)){
+        matrix[i, ] <- func(matrix[i, ])
+      }
+      if(!mul){break}
     }
+  } else if(margin == 2){
+    for(j in 1:ncol(matrix)){
+      if(any(matrix[, j] == number)){
+        matrix[, j] <- func(matrix[, j])
+      }
+      if(!mul){break}
+    }
+  } else {
+    stop("Margin must be 1 or 2")
   }
   
   return(matrix)
   
 }
 
+set.seed(123)
+matrice <- matrix(round(runif(9, 1, 100), 0), nrow = 3)
 matrice[1, 3] <- 88
-applica_se_adv2(matrice, 88, 2, sqrt, mul = FALSE)
+applica_se_adv2(matrice, 88, 2, sqrt, mul = FALSE) #non va
 applica_se_adv2(matrice, 88, 2, sqrt, mul = TRUE)
+matrice[3, 3] <- 88
+applica_se_adv2(matrice, 88, 1, sqrt, mul = FALSE)
+applica_se_adv2(matrice, 88, 1, sqrt, mul = TRUE)
 ```
 
 # Esercizi di implementazione di funzioni
@@ -3951,21 +3958,49 @@ Scrivi uno script `R` che definisca una funzione personalizzata chiamata `conta_
 
 ```{r}
 conta_quanti_sup <- function(v, k){
-  if(!is.vector(v) | !is.numeric(k)){
-    stop("Gli input devono essere, in ordine, un vettore e un numero")
+  if(!is.numeric(v) | !is.numeric(k)){
+    stop("The input must be a numeric vector and a number")
   }
-  counter <- 0
+  
+  count <- 0
   for(elem in v){
     if(elem > k){
-      counter <- counter + 1
+      count <- count + 1
     }
   }
-  return(counter)
+  
+  return(count)
+  
 }
 
-v <- sample(1:100, 13, replace = TRUE)
-k <- sample(1:100, 1)
-conta_quanti_sup(v, k)
+#TESTING
+crea_vettore_casuale <- function(min, max, n){
+  if(!is.numeric(c(min, max, n))){
+    stop("The input must be 3 numbers")
+  }
+  
+  vettore <- sample(min:max, n)
+  
+  return(vettore)
+
+}
+
+test_vec <- function(my_fun, k, iter){
+  i <- 1
+  while(i <= iter){
+    v <- crea_vettore_casuale(1, 100, 10)
+    my <- my_fun(v, k)
+    r <- length(which(v > k))
+    if (my == r){
+      print(paste("Iterazione", i , "OK"))
+    } else {
+      print(paste("Iterazione", i , "ERROR"))
+    }
+    i <- i+1
+  }
+}
+
+test_vec(conta_quanti_sup, 56, 10)
 ```
 
 ## Domanda 2: analisi di dataframe
